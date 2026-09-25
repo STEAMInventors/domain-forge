@@ -16,6 +16,7 @@ import { cmdQualify } from './commands/qualify.js';
 import { cmdCertify } from './commands/certify.js';
 import { cmdRuntimeEligibility } from './commands/runtime-eligibility.js';
 import { cmdProvenance } from './commands/provenance.js';
+import { cmdForge } from './commands/forge.js';
 
 export async function dispatchCommand(
   ctx: CliContext,
@@ -32,6 +33,8 @@ export async function dispatchCommand(
   }
 
   switch (command) {
+    case 'forge':
+      return cmdForge(effectiveCtx, args);
     case 'create-run':
       return cmdCreateRun(effectiveCtx, args);
     case 'inspect-run':
