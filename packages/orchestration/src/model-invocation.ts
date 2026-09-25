@@ -1,4 +1,4 @@
-import { BudgetExceededError, hashObject } from '@domain-forge/core';
+import { BudgetExceededError, ForgeError, hashObject } from '@domain-forge/core';
 import type {
   DeterministicModelConfigRef,
   ModelExecutionMetadata,
@@ -62,6 +62,22 @@ export async function invokeModelWithMetadata(
           code: 'BUDGET_EXCEEDED',
           message: error.message,
           retryable: false,
+          ...(error.details !== undefined ? { details: error.details } : {}),
+        },
+      };
+    }
+
+    if (
+      error instanceof ForgeError &&
+      (error.code === 'MODEL_INVOCATION_ERROR' || error.code === 'MODEL_OUTPUT_ERROR')
+    ) {
+      return {
+        kind: 'FAILED',
+        configRef,
+        failure: {
+          code: error.code,
+          message: error.message,
+          retryable: error.retryable,
           ...(error.details !== undefined ? { details: error.details } : {}),
         },
       };
