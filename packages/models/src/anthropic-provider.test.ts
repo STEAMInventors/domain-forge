@@ -11,7 +11,7 @@ const policy: ModelPolicy = {
 
 describe('AnthropicModelProvider', () => {
   it('normalizes structured response text and usage', async () => {
-    const fetchImpl = vi.fn(async () =>
+    const fetchImpl = vi.fn<typeof fetch>(async (_input, _init) =>
       new Response(
         JSON.stringify({
           id: 'msg_test',
