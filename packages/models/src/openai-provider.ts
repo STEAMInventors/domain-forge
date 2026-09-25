@@ -128,7 +128,7 @@ export class OpenAIModelProvider implements ModelProvider {
           type: 'json_schema',
           name: 'domain_forge_output',
           schema: request.jsonSchema,
-          strict: true,
+          strict: false,
         },
       };
     }
