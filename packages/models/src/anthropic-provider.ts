@@ -21,6 +21,7 @@ const DEFAULT_MAX_TOKENS = 8_192;
 export interface AnthropicModelProviderConfig {
   readonly apiKey: string;
   readonly apiVersion?: string;
+  readonly workspaceId?: string;
   readonly timeoutMs?: number;
   readonly defaultMaxTokens?: number;
   readonly baseUrl?: string;
@@ -85,6 +86,7 @@ export class AnthropicModelProvider implements ModelProvider {
 
   private readonly apiKey: string;
   private readonly apiVersion: string;
+  private readonly workspaceId?: string;
   private readonly timeoutMs: number;
   private readonly defaultMaxTokens: number;
   private readonly baseUrl: string;
@@ -101,6 +103,7 @@ export class AnthropicModelProvider implements ModelProvider {
 
     this.apiKey = config.apiKey;
     this.apiVersion = config.apiVersion ?? DEFAULT_ANTHROPIC_API_VERSION;
+    this.workspaceId = config.workspaceId?.trim() || undefined;
     this.timeoutMs = config.timeoutMs ?? DEFAULT_TIMEOUT_MS;
     this.defaultMaxTokens = config.defaultMaxTokens ?? DEFAULT_MAX_TOKENS;
     this.baseUrl = (config.baseUrl ?? DEFAULT_ANTHROPIC_BASE_URL).replace(/\/$/, '');
@@ -141,6 +144,9 @@ export class AnthropicModelProvider implements ModelProvider {
       headers: {
         'x-api-key': this.apiKey,
         'anthropic-version': this.apiVersion,
+        ...(this.workspaceId !== undefined
+          ? { 'anthropic-workspace-id': this.workspaceId }
+          : {}),
         'Content-Type': 'application/json',
       },
       body: requestBody,
