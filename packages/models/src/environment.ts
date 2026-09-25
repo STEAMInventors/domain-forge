@@ -131,6 +131,9 @@ export function createProductionModelProviderFromEnv(env: Env = process.env): Mo
     providers.push(
       new AnthropicModelProvider({
         apiKey: requiredEnv(env, 'ANTHROPIC_API_KEY'),
+        ...(optionalEnv(env, 'ANTHROPIC_WORKSPACE_ID') !== undefined
+          ? { workspaceId: optionalEnv(env, 'ANTHROPIC_WORKSPACE_ID') }
+          : {}),
         ...(sharedTimeoutMs !== undefined ? { timeoutMs: sharedTimeoutMs } : {}),
       }),
     );
