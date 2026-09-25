@@ -1,0 +1,71 @@
+# Dependencies / generated output
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+build/
+**/build/
+coverage/
+**/coverage/
+*.tsbuildinfo
+.tmp/
+tmp/
+.cache/
+**/.cache/
+
+# Logs
+*.log
+logs/
+**/logs/
+
+# Runtime Forge data
+.data/
+.forge/
+runs/
+data/runs/
+data/artifacts/
+data/runtime/
+artifacts/
+stage-output/
+stage-outputs/
+
+# Retrieved source corpora / snapshots
+data/sources/
+data/source-snapshots/
+data/corpus/
+sources/raw/
+sources/snapshots/
+corpus/
+snapshots/
+
+# Generated fixtures / runtime material
+tests/fixtures/generated/
+fixtures/generated/
+fixtures/runtime/
+
+# Model traces / raw responses
+model-traces/
+raw-model-output/
+raw-responses/
+debug-dumps/
+
+# Temporary exports
+exports/
+reports/generated/
+
+# Secrets
+.env
+.env.*
+**/.env
+**/.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+secrets.json
+**/credentials.json
+**/secrets.json
+
+# OS noise
+.DS_Store
+Thumbs.db

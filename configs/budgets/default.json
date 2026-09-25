@@ -1,0 +1,9 @@
+{
+  "maxModelInvocations": 100,
+  "maxInputTokens": 500000,
+  "maxOutputTokens": 200000,
+  "maxTotalTokens": 700000,
+  "maxCostUsd": 50,
+  "maxRetryAttempts": 5,
+  "maxRuleReviewRounds": 3
+}

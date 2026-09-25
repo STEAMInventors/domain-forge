@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": { "outDir": "dist", "rootDir": "src" },
+  "include": ["src/**/*"],
+  "references": [
+    { "path": "../../packages/certification" },
+    { "path": "../../packages/core" },
+    { "path": "../../packages/models" },
+    { "path": "../../packages/orchestration" },
+    { "path": "../../packages/packs" },
+    { "path": "../../packages/persistence" },
+    { "path": "../../packages/stages" },
+    { "path": "../../packages/testing" },
+    { "path": "../../packages/validation" },
+    { "path": "../../packages/pack-contract" }
+  ]
+}

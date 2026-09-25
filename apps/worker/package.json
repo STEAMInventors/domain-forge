@@ -1,0 +1,19 @@
+{
+  "name": "@domain-forge/worker",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@domain-forge/core": "workspace:*",
+    "@domain-forge/models": "workspace:*",
+    "@domain-forge/observability": "workspace:*",
+    "@domain-forge/orchestration": "workspace:*",
+    "@domain-forge/persistence": "workspace:*"
+  },
+  "devDependencies": { "typescript": "^5.7.3" }
+}

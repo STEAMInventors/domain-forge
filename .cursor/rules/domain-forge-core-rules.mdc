@@ -1,0 +1,46 @@
+---
+description: Domain Forge non-negotiable engineering rules
+alwaysApply: true
+---
+
+# Domain Forge Core Rules
+
+MODEL PROPOSES. PACK DEFINES. CODE VALIDATES. HIVE EXECUTES. PROFESSIONAL CERTIFIES.
+
+1. Never put domain-specific logic in generic Forge code.
+2. Never create a second Domain Pack schema; use `@hive/pack-contract`.
+3. Never trust LLM output before deterministic validation.
+4. Never guess missing facts. Preserve UNKNOWN / NOT_FOUND / UNDETERMINED.
+5. Never bypass evidence, quote, capability, fixture, human, or certification gates.
+6. Never mutate validated artifacts, stage attempts, pack versions, or certification history.
+7. Pack certification always binds to the exact `packContentHash`.
+8. Stage inputs are deny-by-default projections; do not expose undeclared prior-stage data.
+9. Authoritative web content must enter through Forge retrieval and SourceSnapshots.
+10. Stage 7 must be independent from Stage 6.
+11. Domain Packs contain declarative data, never arbitrary executable code.
+12. New primitives, grammar types, archetypes, composition/time/identity strategies, or weakened guardrails require an ADR.
+
+## Context discipline
+
+* Read only files needed for the current task.
+* Do not scan the repository unless explicitly required.
+* Do not read generated corpora, raw model outputs, snapshots, or historical runs unless specifically requested.
+* Read `docs/ARCHITECTURE.md` before changing package boundaries, contracts, state machines, stage semantics, evidence handling, or certification.
+* Prefer targeted search over opening entire large files.
+* Do not repeatedly reread unchanged files.
+* Do not restate architecture in responses; reference the source file.
+* Keep implementation responses concise: changed files, validation result, unresolved decisions.
+* Do not create documentation unless requested or required by an architectural change.
+* Do not add abstractions, dependencies, infrastructure, or packages without a demonstrated current requirement.
+
+## Change discipline
+
+Before modifying code:
+
+1. Locate the owning package.
+2. Inspect the relevant contract/tests.
+3. Make the smallest valid change.
+4. Run the narrowest relevant tests first.
+5. Run broader verification only when needed.
+
+Do not refactor unrelated code while implementing a task.

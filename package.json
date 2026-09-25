@@ -1,0 +1,41 @@
+{
+  "name": "domain-forge",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "System for researching, generating, testing, qualifying, and certifying Hive Domain Packs",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "build": "pnpm -r run build",
+    "lint": "eslint .",
+    "format": "prettier --check .",
+    "format:write": "prettier --write .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "pnpm -r run typecheck"
+  },
+  "devDependencies": {
+    "@domain-forge/certification": "workspace:*",
+    "@domain-forge/core": "workspace:*",
+    "@domain-forge/evidence": "workspace:*",
+    "@domain-forge/fixtures": "workspace:*",
+    "@domain-forge/models": "workspace:*",
+    "@domain-forge/orchestration": "workspace:*",
+    "@domain-forge/packs": "workspace:*",
+    "@domain-forge/persistence": "workspace:*",
+    "@domain-forge/sources": "workspace:*",
+    "@domain-forge/stages": "workspace:*",
+    "@domain-forge/testing": "workspace:*",
+    "@domain-forge/validation": "workspace:*",
+    "@eslint/js": "^9.18.0",
+    "@hive/pack-contract": "workspace:*",
+    "@types/node": "^22.10.5",
+    "eslint": "^9.18.0",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.20.0",
+    "vitest": "3.0.4"
+  }
+}

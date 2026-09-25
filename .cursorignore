@@ -1,0 +1,118 @@
+﻿# ============================================================
+# Domain Forge — Cursor Context Exclusions
+# Goal: keep AI context small, relevant, and safe.
+# ============================================================
+
+# Dependencies / generated output
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+build/
+**/build/
+coverage/
+**/coverage/
+.tmp/
+tmp/
+.cache/
+**/.cache/
+
+# Logs
+*.log
+logs/
+**/logs/
+
+# Runtime Forge data
+.forge/
+runs/
+data/runs/
+data/artifacts/
+data/runtime/
+artifacts/
+stage-output/
+stage-outputs/
+
+# Retrieved source corpora can become very large.
+# Agent should inspect them only through targeted tooling,
+# summaries, hashes, or explicitly copied small fixtures.
+data/sources/
+data/source-snapshots/
+data/corpus/
+sources/raw/
+sources/snapshots/
+corpus/
+snapshots/
+
+# Large/generated fixture material
+tests/fixtures/generated/
+fixtures/generated/
+fixtures/runtime/
+
+# Model traces / raw responses
+model-traces/
+raw-model-output/
+raw-responses/
+debug-dumps/
+
+# Temporary exports
+exports/
+reports/generated/
+
+# Binary / document source material
+*.pdf
+*.doc
+*.docx
+*.ppt
+*.pptx
+*.xls
+*.xlsx
+*.zip
+*.tar
+*.gz
+
+# Large media
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.mp4
+*.mov
+
+# Local persistence
+*.sqlite
+*.sqlite3
+*.db
+
+# Secrets
+.env
+.env.*
+**/.env
+**/.env.*
+*.pem
+*.key
+credentials.json
+secrets.json
+**/credentials.json
+**/secrets.json
+
+# OS / IDE noise
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# ============================================================
+# DO NOT IGNORE:
+#
+# docs/
+# prompts/
+# configs/
+# packages/pack-contract/
+# packages/contracts/
+# packages/schemas/
+# packages/core/
+# .cursor/rules/
+#
+# These define Domain Forge behavior and architecture.
+# ============================================================

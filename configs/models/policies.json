@@ -1,0 +1,7 @@
+{
+  "research.high_accuracy": { "provider": "fake", "modelIdentifier": "fake-research-v1" },
+  "extraction.high_volume": { "provider": "fake", "modelIdentifier": "fake-extract-v1" },
+  "reasoning.deep": { "provider": "fake", "modelIdentifier": "fake-reason-v1" },
+  "adversarial.independent": { "provider": "fake", "modelIdentifier": "fake-adversarial-v1" },
+  "fixture.high_volume": { "provider": "fake", "modelIdentifier": "fake-fixture-v1" }
+}
