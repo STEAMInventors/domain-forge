@@ -1,22 +1,28 @@
-import type { StalenessEvaluator, StalenessEvaluation, StalenessEventHandler } from '@domain-forge/contracts';
-import { transitionPackVersion } from '@domain-forge/core';
+import { applyPackVersionTransition } from './pack-version-service.js';
+import type { StalenessEvaluation } from '@domain-forge/contracts';
 import type { PackVersion } from '@domain-forge/contracts';
 
-export class DefaultStalenessEvaluator implements StalenessEvaluator {
-  private readonly staleHashes = new Set<string>();
+export class DefaultStalenessEvaluator {
+  private staleAuthorityCorpusHashes = new Set<string>();
 
-  markCorpusStale(corpusHash: string): void {
-    this.staleHashes.add(corpusHash);
+  markAuthorityCorpusStale(authorityCorpusHash: string): void {
+    this.staleAuthorityCorpusHashes.add(authorityCorpusHash);
   }
 
-  async evaluate(_packContentHash: string, corpusHash: string): Promise<StalenessEvaluation> {
-    const reasons = this.staleHashes.has(corpusHash)
-      ? (['SOURCE_CONTENT_CHANGED'] as const)
-      : ([] as const);
-
+  async evaluate(
+    packContentHash: string,
+    authorityCorpusHash?: string,
+  ): Promise<StalenessEvaluation> {
+    const reasons: StalenessEvaluation['reasons'][number][] = [];
+    if (
+      authorityCorpusHash !== undefined &&
+      this.staleAuthorityCorpusHashes.has(authorityCorpusHash)
+    ) {
+      reasons.push('CORPUS_REQUALIFICATION_REQUIRED');
+    }
     return {
       isStale: reasons.length > 0,
-      reasons: [...reasons],
+      reasons,
       evaluatedAt: new Date().toISOString(),
     };
   }
@@ -25,19 +31,13 @@ export class DefaultStalenessEvaluator implements StalenessEvaluator {
 export async function handleStalenessEvent(
   packVersion: PackVersion,
   evaluation: StalenessEvaluation,
-  handler?: StalenessEventHandler,
 ): Promise<PackVersion> {
-  if (handler) {
-    await handler(packVersion.packId, packVersion.state, evaluation);
+  if (!evaluation.isStale || packVersion.state !== 'CERTIFIED') {
+    return packVersion;
   }
 
-  if (evaluation.isStale && packVersion.state === 'CERTIFIED') {
-    return {
-      ...packVersion,
-      state: transitionPackVersion('CERTIFIED', 'SUSPENDED'),
-      updatedAt: new Date().toISOString(),
-    };
-  }
-
-  return packVersion;
+  const { packVersion: suspended } = applyPackVersionTransition(packVersion, 'SUSPEND', {
+    reasonRef: evaluation.reasons.join(','),
+  });
+  return suspended;
 }

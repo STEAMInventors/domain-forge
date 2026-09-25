@@ -1,0 +1,15 @@
+{
+  "id": "bootstrap-default",
+  "version": "1.0.0",
+  "requiredQualificationProfiles": [
+    { "id": "bootstrap-default", "version": "1.0.0" }
+  ],
+  "layerARequired": true,
+  "layerBRequired": false,
+  "requiredReviewerRoles": ["DOMAIN_EXPERT", "FOUNDER_PRODUCT_OWNER", "LICENSED_ATTORNEY"],
+  "requiredCompletenessValidators": [
+    "extraction-contract-completeness",
+    "output-specification-completeness"
+  ],
+  "permitUnresolvedReviewItems": false
+}

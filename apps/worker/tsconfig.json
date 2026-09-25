@@ -3,10 +3,12 @@
   "compilerOptions": { "outDir": "dist", "rootDir": "src" },
   "include": ["src/**/*"],
   "references": [
+    { "path": "../../packages/contracts" },
     { "path": "../../packages/core" },
     { "path": "../../packages/models" },
     { "path": "../../packages/observability" },
     { "path": "../../packages/orchestration" },
-    { "path": "../../packages/persistence" }
+    { "path": "../../packages/persistence" },
+    { "path": "../../packages/stages" }
   ]
 }

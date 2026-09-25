@@ -50,7 +50,7 @@ describe('validators', () => {
     expect(v.validate({ packContentHash: hash, certificationHash: 'different', decision: 'CERTIFIED' }).passed).toBe(false);
   });
 
-  it('validates pack primitives', () => {
+  it('validates pack primitives against registry', () => {
     const pack = createMinimalTestPack();
     const results = validatePack(pack);
     expect(allPassed(results)).toBe(true);
@@ -59,13 +59,10 @@ describe('validators', () => {
       rules: [
         {
           id: 'r1',
-          name: 'Bad',
-          trigger: 't',
           primitive: 'INVENTED',
           entityIds: [],
           factIds: [],
-          exceptions: [],
-          authorityRefIds: ['auth-001'],
+          authorityRefIds: [],
         },
       ],
     });

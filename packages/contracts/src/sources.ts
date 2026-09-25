@@ -1,24 +1,33 @@
-import type { SourceSnapshotId } from '@domain-forge/core';
+import type { SourceId, SourceSnapshotId } from '@domain-forge/core';
+import type { SourceIdentity, SourceRecord } from './source-identity.js';
 
+export type { SourceIdentity, SourceRecord, SourceAuthorityMetadata, SourceContentFingerprint, SourceLocator, SourceRetrievalRecord, SourceType } from './source-identity.js';
+export { SOURCE_TYPES } from './source-identity.js';
+
+/**
+ * Operational snapshot of retrieved source content.
+ * Links to stable SourceIdentity; retrieval/extraction/normalization are separate from evidence.
+ */
 export interface SourceSnapshot {
-  sourceSnapshotId: SourceSnapshotId;
-  url: string;
-  canonicalUrl?: string;
-  title?: string;
-  retrievalTimestamp: string;
-  httpStatus?: number;
-  httpHeaders?: Record<string, string>;
-  contentType?: string;
-  rawContent: string;
-  rawContentRef?: string;
-  extractedRawText: string;
-  normalizedText: string;
-  contentHash: string;
-  extractionVersion: string;
-  normalizationVersion: string;
-  jurisdiction?: string;
-  sourceTier?: string;
-  effectiveDate?: string;
+  readonly sourceSnapshotId: SourceSnapshotId;
+  readonly sourceId: SourceId;
+  readonly url: string;
+  readonly canonicalUrl?: string;
+  readonly title?: string;
+  readonly retrievalTimestamp: string;
+  readonly httpStatus?: number;
+  readonly httpHeaders?: Record<string, string>;
+  readonly contentType?: string;
+  readonly rawContent: string;
+  readonly rawContentRef?: string;
+  readonly extractedRawText: string;
+  readonly normalizedText: string;
+  readonly contentHash: string;
+  readonly extractionVersion: string;
+  readonly normalizationVersion: string;
+  readonly jurisdiction?: string;
+  readonly sourceTier?: string;
+  readonly effectiveDate?: string;
 }
 
 export interface SearchResult {
@@ -48,4 +57,33 @@ export interface SourceSnapshotStore {
   save(snapshot: SourceSnapshot): Promise<void>;
   get(id: SourceSnapshotId): Promise<SourceSnapshot | undefined>;
   getByHash(hash: string): Promise<SourceSnapshot | undefined>;
+}
+
+export interface SourceRegistry {
+  save(record: SourceRecord): Promise<void>;
+  get(sourceId: SourceId): Promise<SourceRecord | undefined>;
+  getByFingerprint(fingerprint: string): Promise<SourceRecord | undefined>;
+}
+
+/** Derive stable source identity fields from an operational snapshot */
+export function sourceIdentityFromSnapshot(snapshot: SourceSnapshot): SourceIdentity {
+  return {
+    sourceId: snapshot.sourceId,
+    sourceType: 'web_snapshot',
+    ...(snapshot.title !== undefined ? { title: snapshot.title } : {}),
+    locator: {
+      kind: 'url',
+      url: snapshot.url,
+      ...(snapshot.canonicalUrl !== undefined ? { canonicalUrl: snapshot.canonicalUrl } : {}),
+    },
+    ...(snapshot.jurisdiction !== undefined ? { jurisdiction: snapshot.jurisdiction } : {}),
+    ...(snapshot.effectiveDate !== undefined ? { effectiveDate: snapshot.effectiveDate } : {}),
+    contentFingerprint: {
+      algorithm: 'sha256',
+      hash: snapshot.contentHash,
+      representation: 'normalized_text',
+      normalizationVersion: snapshot.normalizationVersion,
+      extractionVersion: snapshot.extractionVersion,
+    },
+  };
 }

@@ -1,11 +1,15 @@
-import type { DomainPackV0 } from '@hive/pack-contract';
+import type { DomainPackV0, OutputRuleOutcomeId } from '@hive/pack-contract';
 
+/**
+ * Layer A rule-qualification execution shorthand for HiveExecutor bootstrap.
+ * Full fixture/gold contracts live in `./fixtures.js`.
+ */
 export interface SyntheticFixture {
   id: string;
   ruleId: string;
   fixtureType: 'FIRE' | 'MUST_NOT_FIRE' | 'EXCEPTION' | 'UNDETERMINED';
   documents: Record<string, unknown>;
-  expectedOutcome: 'FIRED' | 'NOT_FIRED' | 'UNDETERMINED';
+  expectedOutcome: OutputRuleOutcomeId;
 }
 
 export interface FixtureExecutionRecord {

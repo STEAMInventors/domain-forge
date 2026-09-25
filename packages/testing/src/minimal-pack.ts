@@ -1,6 +1,10 @@
-import { DOMAIN_PACK_SCHEMA_VERSION, type DomainPackV0 } from '@hive/pack-contract';
+import {
+  DOMAIN_PACK_SCHEMA_VERSION,
+  minimalOutputSpecification,
+  type DomainPackV0,
+} from '@hive/pack-contract';
 
-/** Domain-neutral minimal pack for tests */
+/** Domain-neutral minimal pack shell with Step-10 registry section fields for tests. */
 export function createMinimalTestPack(overrides?: Partial<DomainPackV0>): DomainPackV0 {
   return {
     schemaVersion: DOMAIN_PACK_SCHEMA_VERSION,
@@ -9,47 +13,58 @@ export function createMinimalTestPack(overrides?: Partial<DomainPackV0>): Domain
     packVersion: '0.1.0',
     scope: 'synthetic-test-scope',
     jurisdiction: 'TEST-JURISDICTION',
+    dependencies: { extends: [], overlay: [], shared: [] },
     corpusHash: 'corpus-hash-test-001',
-    authorityReferences: [
+    authorityReferences: [{ id: 'auth-001', label: 'Test authority' }],
+    documentTypes: [{ id: 'doc-type-001', label: 'Test document type' }],
+    vocabulary: [{ id: 'term-001', term: 'test-term' }],
+    entities: [{ id: 'entity-001', grammarType: 'Party', label: 'Test party' }],
+    facts: [{ id: 'fact-001', entityId: 'entity-001', label: 'Test fact' }],
+    extractionContracts: [
       {
-        id: 'auth-001',
-        sourceSnapshotId: 'snap-test-001',
-        quote: 'Synthetic authority quote for testing.',
-      },
-    ],
-    documentTypes: [{ id: 'doc-type-001', name: 'SyntheticDocument', requiredFields: ['fieldA'] }],
-    vocabulary: [
-      { id: 'term-001', term: 'AlphaMetric', definition: 'A neutral test metric.', authorityRefIds: [] },
-    ],
-    entities: [{ id: 'entity-001', name: 'SyntheticRecord', grammarType: 'Party', attributes: {} }],
-    facts: [
-      {
-        id: 'fact-001',
-        name: 'recordStatus',
-        entityId: 'entity-001',
-        dataType: 'string',
-        authorityRefIds: [],
+        id: 'extract-fact-001',
+        factId: 'fact-001',
+        definition: 'The effective date stated on the document.',
+        expectedType: 'date',
+        cardinality: 'exactly_one',
+        evidence: { required: true, minCount: 1 },
+        positiveExamples: ['Effective date: January 1, 2024'],
+        negativeExamples: ['Submission date only'],
+        documentTypeIds: ['doc-type-001'],
+        vocabularyRefs: [],
+        identityHints: [],
+        phrasingConstraints: [],
+        unitRequired: false,
+        escapeHatches: {
+          notPresent: 'No effective date appears anywhere in the document.',
+          undetermined: 'Multiple conflicting effective dates appear without resolution.',
+          reviewRequired: [],
+        },
       },
     ],
     composition: { strategy: 'snapshot', archetype: 'ledger' },
-    timeModels: [{ id: 'tm-001', model: 'calendar_day', parameters: {} }],
-    identityStrategies: [{ entityId: 'entity-001', strategy: 'external_id', parameters: {} }],
+    timeModels: [{ id: 'tm-001', model: 'calendar_day' }],
+    identityStrategies: [{ id: 'is-001', strategy: 'external_id' }],
     rules: [
       {
         id: 'rule-001',
-        name: 'RequireStatus',
-        trigger: 'on_evaluate',
         primitive: 'REQUIRE',
         entityIds: ['entity-001'],
         factIds: ['fact-001'],
-        exceptions: [],
         authorityRefIds: ['auth-001'],
       },
     ],
-    questions: [{ id: 'q-001', ruleId: 'rule-001', text: 'Is the record status present?', requiredFacts: ['fact-001'] }],
+    questions: [{ id: 'q-001', text: 'What is the current status?' }],
+    outputSpecifications: [minimalOutputSpecification('output-spec-professional-001')],
     capabilityRequirements: [],
-    fixtureReferences: [{ id: 'fix-ref-001', ruleId: 'rule-001', fixtureType: 'FIRE' }],
-    provenanceReferences: [{ id: 'prov-001', type: 'forge-run', ref: 'run-test-001' }],
+    fixtureReferences: [
+      {
+        id: 'fix-ref-001',
+        corpusId: 'corpus-test-001',
+        fixtureIds: ['fixture-001'],
+      },
+    ],
+    provenanceReferences: [{ id: 'prov-001' }],
     ...overrides,
   };
 }

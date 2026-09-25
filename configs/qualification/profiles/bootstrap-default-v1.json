@@ -1,0 +1,27 @@
+{
+  "id": "bootstrap-default",
+  "version": "1.0.0",
+  "requiredFixtureCategories": ["synthetic", "normal"],
+  "requiredMaterialClasses": ["synthetic"],
+  "requiredValidatorIds": ["schema", "extraction-contract-completeness", "output-specification-completeness"],
+  "requiredCompletenessValidators": [
+    "extraction-contract-completeness",
+    "output-specification-completeness"
+  ],
+  "permittedExclusions": [],
+  "humanReviewRequirements": [
+    {
+      "reviewerRole": "DOMAIN_EXPERT",
+      "requiredForCategories": ["adversarial"]
+    }
+  ],
+  "coverageRequirements": {
+    "minSyntheticFixtures": 1,
+    "minTotalFixtures": 1,
+    "requireAllPackFixtureReferences": true
+  },
+  "layerARequired": true,
+  "layerBRequired": false,
+  "requiredExecutionTrust": "REAL_HIVE",
+  "allowedPackVersionStates": ["DRAFT", "PROVISIONAL"]
+}

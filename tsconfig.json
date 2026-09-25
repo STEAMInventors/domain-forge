@@ -12,6 +12,7 @@
     { "path": "packages/stages" },
     { "path": "packages/packs" },
     { "path": "packages/fixtures" },
+    { "path": "packages/qualification" },
     { "path": "packages/certification" },
     { "path": "packages/persistence" },
     { "path": "packages/orchestration" },

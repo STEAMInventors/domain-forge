@@ -14,7 +14,8 @@ export interface PackVersion {
   state: PackVersionState;
   packContent: DomainPackV0;
   packContentHash: string;
-  corpusHash: string;
+  /** Authority/source corpus hash from pack manifest — optional, never empty-string placeholder. */
+  authorityCorpusHash?: string;
   createdAt: string;
   updatedAt: string;
   frozenAt?: string;

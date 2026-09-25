@@ -4,6 +4,7 @@ import type {
   StageAttemptId,
   StageExecutionId,
 } from '@domain-forge/core';
+import type { StageEvidenceReference } from './evidence.js';
 
 export type StageStatus =
   | 'PENDING'
@@ -49,14 +50,6 @@ export interface ValidationResult {
   timestamp: string;
 }
 
-export interface EvidenceReference {
-  id: string;
-  sourceSnapshotId: string;
-  quote: string;
-  normalizedQuote: string;
-  verified: boolean;
-}
-
 export interface ToolInvocationRecord {
   toolName: string;
   request: unknown;
@@ -79,7 +72,7 @@ export interface StageAttempt {
   rawResponse: string;
   parsedOutput?: unknown;
   validationResults: readonly ValidationResult[];
-  evidenceReferences: readonly EvidenceReference[];
+  evidenceReferences: readonly StageEvidenceReference[];
   toolInvocations: readonly ToolInvocationRecord[];
   tokenUsage: { input: number; output: number; total: number };
   costUsd?: number;

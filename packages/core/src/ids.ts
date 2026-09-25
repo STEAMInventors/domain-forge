@@ -5,8 +5,11 @@ export type PackVersionId = string & { readonly __brand: 'PackVersionId' };
 export type StageExecutionId = string & { readonly __brand: 'StageExecutionId' };
 export type StageAttemptId = string & { readonly __brand: 'StageAttemptId' };
 export type ArtifactId = string & { readonly __brand: 'ArtifactId' };
+export type SourceId = string & { readonly __brand: 'SourceId' };
 export type SourceSnapshotId = string & { readonly __brand: 'SourceSnapshotId' };
+export type EvidenceId = string & { readonly __brand: 'EvidenceId' };
 export type CertificationId = string & { readonly __brand: 'CertificationId' };
+export type QualificationRecordId = string & { readonly __brand: 'QualificationRecordId' };
 export type HumanReviewId = string & { readonly __brand: 'HumanReviewId' };
 export type CapabilityGapId = string & { readonly __brand: 'CapabilityGapId' };
 
@@ -34,12 +37,24 @@ export function asArtifactId(id: string): ArtifactId {
   return id as ArtifactId;
 }
 
+export function asSourceId(id: string): SourceId {
+  return id as SourceId;
+}
+
 export function asSourceSnapshotId(id: string): SourceSnapshotId {
   return id as SourceSnapshotId;
 }
 
+export function asEvidenceId(id: string): EvidenceId {
+  return id as EvidenceId;
+}
+
 export function asCertificationId(id: string): CertificationId {
   return id as CertificationId;
+}
+
+export function asQualificationRecordId(id: string): QualificationRecordId {
+  return id as QualificationRecordId;
 }
 
 export function asHumanReviewId(id: string): HumanReviewId {

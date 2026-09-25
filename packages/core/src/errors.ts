@@ -8,6 +8,9 @@ export type ErrorCode =
   | 'MODEL_INVOCATION_ERROR'
   | 'MODEL_OUTPUT_ERROR'
   | 'STAGE_PROJECTION_ERROR'
+  | 'INVALID_STAGE_INPUT'
+  | 'BLOCKED_PREREQUISITE'
+  | 'DETERMINISTIC_VALIDATION_FAILED'
   | 'BLOCKED_CAPABILITY'
   | 'STAGE_EXECUTION_ERROR'
   | 'BUDGET_EXCEEDED'
@@ -21,7 +24,10 @@ export type ErrorCode =
   | 'FAILED_VALIDATION'
   | 'NEEDS_REVIEW'
   | 'SOURCE_UNAVAILABLE'
-  | 'UNDETERMINED';
+  | 'UNDETERMINED'
+  | 'UNKNOWN_LIFECYCLE_STATE'
+  | 'INVALID_LIFECYCLE_TRANSITION'
+  | 'LIFECYCLE_CONTENT_MUTATION';
 
 export interface ForgeErrorDetails {
   [key: string]: unknown;
@@ -124,5 +130,40 @@ export class StageProjectionError extends ForgeError {
   constructor(message: string, details?: ForgeErrorDetails) {
     super(errorOpts('STAGE_PROJECTION_ERROR', message, details));
     this.name = 'StageProjectionError';
+  }
+}
+
+export class ModelInvocationError extends ForgeError {
+  constructor(message: string, details?: ForgeErrorDetails, retryable = true) {
+    super(errorOpts('MODEL_INVOCATION_ERROR', message, details, { retryable }));
+    this.name = 'ModelInvocationError';
+  }
+}
+
+export class ModelOutputError extends ForgeError {
+  constructor(message: string, details?: ForgeErrorDetails) {
+    super(errorOpts('MODEL_OUTPUT_ERROR', message, details));
+    this.name = 'ModelOutputError';
+  }
+}
+
+export class StageExecutionError extends ForgeError {
+  constructor(message: string, details?: ForgeErrorDetails) {
+    super(errorOpts('STAGE_EXECUTION_ERROR', message, details));
+    this.name = 'StageExecutionError';
+  }
+}
+
+export class InvalidStageInputError extends ForgeError {
+  constructor(message: string, details?: ForgeErrorDetails) {
+    super(errorOpts('INVALID_STAGE_INPUT', message, details));
+    this.name = 'InvalidStageInputError';
+  }
+}
+
+export class BlockedPrerequisiteError extends ForgeError {
+  constructor(message: string, details?: ForgeErrorDetails) {
+    super(errorOpts('BLOCKED_PREREQUISITE', message, details));
+    this.name = 'BlockedPrerequisiteError';
   }
 }

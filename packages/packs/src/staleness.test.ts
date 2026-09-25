@@ -9,12 +9,17 @@ describe('staleness', () => {
     const pack = createMinimalTestPack();
     let packVersion = applyPackVersionTransition(
       createPackVersion('pack-001', '0.1.0', pack),
-      'PROVISIONAL',
-    );
-    packVersion = applyPackVersionTransition(packVersion, 'CERTIFIED');
+      'PROMOTE_TO_PROVISIONAL',
+    ).packVersion;
+    packVersion = applyPackVersionTransition(packVersion, 'CERTIFY').packVersion;
 
-    evaluator.markCorpusStale(pack.corpusHash);
-    const evaluation = await evaluator.evaluate(packVersion.packContentHash, pack.corpusHash);
+    const authorityCorpusHash = pack.corpusHash;
+    expect(authorityCorpusHash).toBeDefined();
+    evaluator.markAuthorityCorpusStale(authorityCorpusHash!);
+    const evaluation = await evaluator.evaluate(
+      packVersion.packContentHash,
+      authorityCorpusHash,
+    );
     expect(evaluation.isStale).toBe(true);
 
     const suspended = await handleStalenessEvent(packVersion, evaluation);

@@ -14,7 +14,10 @@ export interface StalenessEvaluation {
 }
 
 export interface StalenessEvaluator {
-  evaluate(packContentHash: string, corpusHash: string): Promise<StalenessEvaluation>;
+  evaluate(
+    packContentHash: string,
+    authorityCorpusHash?: string,
+  ): Promise<StalenessEvaluation>;
 }
 
 export type StalenessEventHandler = (

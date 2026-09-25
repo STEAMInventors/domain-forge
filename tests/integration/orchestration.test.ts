@@ -1,9 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import { createInMemoryRepositories } from '@domain-forge/persistence';
-import { ForgeOrchestrator, PromptRegistry, executeStage } from '@domain-forge/orchestration';
+import {
+  ForgeOrchestrator,
+  PromptRegistry,
+  executeStage,
+} from '@domain-forge/orchestration';
 import { FakeModelProvider, createDefaultPolicyRegistry } from '@domain-forge/models';
 import { EXAMPLE_STAGE_DEFINITION, validateExampleStageOutput } from '@domain-forge/stages';
-import { HumanGateRequiredError } from '@domain-forge/core';
 import defaultBudget from '../../configs/budgets/default.json';
 
 describe('orchestration integration', () => {
@@ -36,17 +39,23 @@ describe('orchestration integration', () => {
       }),
     });
 
-    await expect(
-      executeStage(
-        { repos, promptRegistry, modelProvider, policyRegistry: createDefaultPolicyRegistry() },
-        {
-          run: { ...run, state: 'RUNNING' },
-          definition: EXAMPLE_STAGE_DEFINITION,
-          artifacts: { 'seed-input': { content: { seedValue: 1, label: 'x' } } },
-          outputValidator: validateExampleStageOutput,
-        },
-      ),
-    ).rejects.toThrow(HumanGateRequiredError);
+    const outcome = await executeStage(
+      { repos, promptRegistry, modelProvider, policyRegistry: createDefaultPolicyRegistry() },
+      {
+        run: { ...run, state: 'RUNNING' },
+        definition: EXAMPLE_STAGE_DEFINITION,
+        artifacts: { 'seed-input': { content: { seedValue: 1, label: 'x' } } },
+        outputValidators: [validateExampleStageOutput],
+      },
+    );
+
+    expect(outcome.kind).toBe('BLOCKED');
+    if (outcome.kind === 'BLOCKED') {
+      expect(outcome.failure.code).toBe('HUMAN_GATE_REQUIRED');
+    }
+
+    const afterBlocked = await orchestrator.applyStageOutcome(run.id, outcome);
+    expect(afterBlocked.run.state).toBe('WAITING_FOR_HUMAN');
   });
 
   it('allows stage execution after Stage 0 approval', async () => {
@@ -86,18 +95,24 @@ describe('orchestration integration', () => {
     });
 
     const updatedRun = (await repos.forgeRuns.get(run.id))!;
-    const { execution, artifact } = await executeStage(
+    const outcome = await executeStage(
       { repos, promptRegistry, modelProvider, policyRegistry: createDefaultPolicyRegistry() },
       {
         run: updatedRun,
         definition: EXAMPLE_STAGE_DEFINITION,
         artifacts: { 'seed-input': { content: { seedValue: 1, label: 'x' } } },
-        outputValidator: validateExampleStageOutput,
+        outputValidators: [validateExampleStageOutput],
       },
     );
 
-    expect(execution.status).toBe('COMPLETED');
-    expect(artifact).toBeDefined();
-    expect(artifact!.immutable).toBe(true);
+    expect(outcome.kind).toBe('SUCCEEDED');
+    if (outcome.kind === 'SUCCEEDED') {
+      expect(outcome.execution.status).toBe('COMPLETED');
+      expect(outcome.proposed.source).toBe('MODEL');
+      expect(outcome.accepted.source).toBe('VALIDATED');
+      expect(outcome.proposed.parsed).toEqual(outcome.accepted.content);
+      expect(outcome.artifact.immutable).toBe(true);
+      expect(outcome.artifact.contentHash).toBe(outcome.accepted.contentHash);
+    }
   });
 });

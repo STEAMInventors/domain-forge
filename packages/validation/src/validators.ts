@@ -11,7 +11,7 @@ import {
   IdentityStrategyRegistry,
   CoreGrammarRegistry,
   SourceTierRegistry,
-  QuestionLanguageRegistry,
+  isBannedQuestionLanguage,
   hasOpenCapabilityGaps,
   type CapabilityGap,
 } from '@domain-forge/core';
@@ -22,7 +22,21 @@ import type {
   SyntheticFixture,
   FixtureExecutionRecord,
 } from '@domain-forge/contracts';
-import { verifyQuote } from '@domain-forge/evidence';
+import {
+  acceptProposedEvidenceReferences,
+  verifyQuote,
+  type EvidenceAcceptanceContext,
+} from '@domain-forge/evidence';
+import { createPackRegistries } from '@domain-forge/core';
+import {
+  validateExtractionContractCompleteness,
+  validateExtractionContractReferences,
+} from './extraction-contract-validation.js';
+import {
+  validateOutputSpecificationCompleteness,
+  validateOutputSpecificationReferences,
+} from './output-specification-validation.js';
+import type { ProposedEvidenceReference, SourceRecord } from '@domain-forge/contracts';
 import { BaseValidator, makeResult } from './base.js';
 import { projectStageInput } from './projection.js';
 
@@ -87,8 +101,12 @@ export class EnumRegistryValidator extends BaseValidator<DomainPackV0> {
   validate(input: DomainPackV0): ValidationResult {
     const errors: Array<{ code: string; message: string; path?: string }> = [];
     try {
-      CompositionRegistry.assert(input.composition.strategy);
-      ArchetypeRegistry.assert(input.composition.archetype);
+      if (input.composition.strategy !== undefined) {
+        CompositionRegistry.assert(input.composition.strategy);
+      }
+      if (input.composition.archetype !== undefined) {
+        ArchetypeRegistry.assert(input.composition.archetype);
+      }
     } catch (e) {
       errors.push({ code: 'SEMANTIC_VALIDATION_ERROR', message: String(e) });
     }
@@ -134,6 +152,84 @@ export class EntityReferenceValidator extends BaseValidator<DomainPackV0> {
   }
 }
 
+export class ExtractionContractReferenceValidator extends BaseValidator<DomainPackV0> {
+  readonly id = 'extraction-contract-reference';
+  readonly version = '1.0.0';
+
+  validate(input: DomainPackV0): ValidationResult {
+    const registries = createPackRegistries(input);
+    const result = validateExtractionContractReferences(input, registries);
+    if (!result.valid) {
+      return this.fail(
+        result.errors.map((e) => ({
+          code: e.code,
+          message: e.message,
+          ...(e.path !== undefined ? { path: e.path } : {}),
+        })),
+      );
+    }
+    return this.pass();
+  }
+}
+
+export class OutputSpecificationReferenceValidator extends BaseValidator<DomainPackV0> {
+  readonly id = 'output-specification-reference';
+  readonly version = '1.0.0';
+
+  validate(input: DomainPackV0): ValidationResult {
+    const registries = createPackRegistries(input);
+    const result = validateOutputSpecificationReferences(input, registries);
+    if (!result.valid) {
+      return this.fail(
+        result.errors.map((e) => ({
+          code: e.code,
+          message: e.message,
+          ...(e.path !== undefined ? { path: e.path } : {}),
+        })),
+      );
+    }
+    return this.pass();
+  }
+}
+
+export class OutputSpecificationCompletenessValidator extends BaseValidator<DomainPackV0> {
+  readonly id = 'output-specification-completeness';
+  readonly version = '1.0.0';
+
+  validate(input: DomainPackV0): ValidationResult {
+    const result = validateOutputSpecificationCompleteness(input);
+    if (!result.valid) {
+      return this.fail(
+        result.errors.map((e) => ({
+          code: e.code,
+          message: e.message,
+          ...(e.path !== undefined ? { path: e.path } : {}),
+        })),
+      );
+    }
+    return this.pass();
+  }
+}
+
+export class ExtractionContractCompletenessValidator extends BaseValidator<DomainPackV0> {
+  readonly id = 'extraction-contract-completeness';
+  readonly version = '1.0.0';
+
+  validate(input: DomainPackV0): ValidationResult {
+    const result = validateExtractionContractCompleteness(input);
+    if (!result.valid) {
+      return this.fail(
+        result.errors.map((e) => ({
+          code: e.code,
+          message: e.message,
+          ...(e.path !== undefined ? { path: e.path } : {}),
+        })),
+      );
+    }
+    return this.pass();
+  }
+}
+
 export class FactReferenceValidator extends BaseValidator<DomainPackV0> {
   readonly id = 'fact-reference';
   readonly version = '1.0.0';
@@ -154,12 +250,12 @@ export class FactReferenceValidator extends BaseValidator<DomainPackV0> {
 
 export class QuestionLanguageValidator extends BaseValidator<DomainPackV0> {
   readonly id = 'question-language';
-  readonly version = QuestionLanguageRegistry.version;
+  readonly version = '1.0.0';
 
   validate(input: DomainPackV0): ValidationResult {
     const errors: Array<{ code: string; message: string; path?: string }> = [];
     for (const q of input.questions) {
-      if (QuestionLanguageRegistry.isBanned(q.text)) {
+      if (isBannedQuestionLanguage(q.text)) {
         errors.push({ code: 'SEMANTIC_VALIDATION_ERROR', message: `Question ${q.id} contains banned language` });
       }
     }
@@ -178,6 +274,41 @@ export class QuoteVerifierValidator extends BaseValidator<{
     const result = verifyQuote(input);
     if (!result.verified) {
       return this.fail([{ code: 'EVIDENCE_VERIFICATION_FAILED', message: result.error ?? 'Quote not verified' }]);
+    }
+    return this.pass();
+  }
+}
+
+export class EvidenceReferenceValidator extends BaseValidator<{
+  proposals: readonly ProposedEvidenceReference[];
+  sources: readonly SourceRecord[];
+  getSourceNormalizedText?: (source: SourceRecord) => string | undefined;
+}> {
+  readonly id = 'evidence-reference';
+  readonly version = '1.0.0';
+
+  validate(input: {
+    proposals: readonly ProposedEvidenceReference[];
+    sources: readonly SourceRecord[];
+    getSourceNormalizedText?: (source: SourceRecord) => string | undefined;
+  }): ValidationResult {
+    const sourceMap = new Map(input.sources.map((s) => [s.identity.sourceId, s]));
+    const context: EvidenceAcceptanceContext = {
+      resolveSource: (sourceId) => sourceMap.get(sourceId as never),
+      ...(input.getSourceNormalizedText !== undefined
+        ? { getSourceNormalizedText: input.getSourceNormalizedText }
+        : {}),
+    };
+
+    const { result } = acceptProposedEvidenceReferences(input.proposals, context);
+    if (!result.valid) {
+      return this.fail(
+        result.errors.map((e) => ({
+          code: e.code,
+          message: e.message,
+          ...(e.path !== undefined ? { path: e.path } : {}),
+        })),
+      );
     }
     return this.pass();
   }
@@ -417,6 +548,8 @@ export function validatePack(input: DomainPackV0): ValidationResult[] {
     new EnumRegistryValidator(),
     new EntityReferenceValidator(),
     new FactReferenceValidator(),
+    new ExtractionContractReferenceValidator(),
+    new OutputSpecificationReferenceValidator(),
     new ReferenceIntegrityValidator(),
     new QuestionLanguageValidator(),
   ];

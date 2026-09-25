@@ -8,16 +8,20 @@
     "node": ">=22.0.0"
   },
   "scripts": {
-    "build": "pnpm -r run build",
+    "build": "pnpm -r --sort run build",
+    "clean": "node scripts/clean.mjs",
     "lint": "eslint .",
     "format": "prettier --check .",
     "format:write": "prettier --write .",
     "test": "vitest run",
+    "test:architecture": "vitest run tests/architecture",
+    "test:adversarial": "vitest run tests/adversarial",
     "test:watch": "vitest",
-    "typecheck": "pnpm -r run typecheck"
+    "typecheck": "pnpm -r --sort run build && pnpm -r --sort run typecheck"
   },
   "devDependencies": {
     "@domain-forge/certification": "workspace:*",
+    "@domain-forge/contracts": "workspace:*",
     "@domain-forge/core": "workspace:*",
     "@domain-forge/evidence": "workspace:*",
     "@domain-forge/fixtures": "workspace:*",
@@ -25,6 +29,7 @@
     "@domain-forge/orchestration": "workspace:*",
     "@domain-forge/packs": "workspace:*",
     "@domain-forge/persistence": "workspace:*",
+    "@domain-forge/qualification": "workspace:*",
     "@domain-forge/sources": "workspace:*",
     "@domain-forge/stages": "workspace:*",
     "@domain-forge/testing": "workspace:*",
@@ -33,9 +38,11 @@
     "@hive/pack-contract": "workspace:*",
     "@types/node": "^22.10.5",
     "eslint": "^9.18.0",
+    "pnpm": "9.15.0",
     "prettier": "^3.4.2",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.20.0",
     "vitest": "3.0.4"
-  }
+  },
+  "packageManager": "pnpm@9.15.0+sha512.76e2379760a4328ec4415815bcd6628dee727af3779aaa4c914e3944156c4299921a89f976381ee107d41f12cfa4b66681ca9c718f0668fa0831ed4c6d8ba56c"
 }

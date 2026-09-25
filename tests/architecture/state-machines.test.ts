@@ -4,7 +4,9 @@ import {
   canTransitionForgeRun,
   transitionPackVersion,
   canTransitionPackVersion,
-  InvariantViolationError,
+  PACK_VERSION_TRANSITION_RULES,
+  FORGE_RUN_TRANSITION_RULES,
+  LifecycleTransitionError,
 } from '@domain-forge/core';
 
 describe('ForgeRun state machine', () => {
@@ -18,12 +20,16 @@ describe('ForgeRun state machine', () => {
 
   it('rejects invalid transitions', () => {
     expect(canTransitionForgeRun('COMPLETED', 'RUNNING')).toBe(false);
-    expect(() => transitionForgeRun('COMPLETED', 'RUNNING')).toThrow(InvariantViolationError);
+    expect(() => transitionForgeRun('COMPLETED', 'RUNNING')).toThrow(LifecycleTransitionError);
   });
 
   it('ForgeRun never becomes CERTIFIED', () => {
     const states = ['CREATED', 'RUNNING', 'WAITING_FOR_HUMAN', 'BLOCKED', 'COMPLETED', 'FAILED'];
     expect(states).not.toContain('CERTIFIED');
+  });
+
+  it('documents the full ForgeRun transition matrix', () => {
+    expect(FORGE_RUN_TRANSITION_RULES).toHaveLength(7);
   });
 });
 
@@ -35,10 +41,14 @@ describe('PackVersion state machine', () => {
 
   it('CERTIFIED cannot revert to DRAFT', () => {
     expect(canTransitionPackVersion('CERTIFIED', 'DRAFT')).toBe(false);
-    expect(() => transitionPackVersion('CERTIFIED', 'DRAFT')).toThrow(InvariantViolationError);
+    expect(() => transitionPackVersion('CERTIFIED', 'DRAFT')).toThrow(LifecycleTransitionError);
   });
 
   it('CERTIFIED can become SUSPENDED', () => {
     expect(transitionPackVersion('CERTIFIED', 'SUSPENDED')).toBe('SUSPENDED');
+  });
+
+  it('documents the full PackVersion transition matrix', () => {
+    expect(PACK_VERSION_TRANSITION_RULES).toHaveLength(6);
   });
 });

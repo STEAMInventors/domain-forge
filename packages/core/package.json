@@ -11,13 +11,14 @@
     }
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -b tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "@hive/pack-contract": "workspace:*"
   },
   "devDependencies": {
+    "@domain-forge/testing": "workspace:*",
     "typescript": "^5.7.3",
     "vitest": "^3.0.4"
   }

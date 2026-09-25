@@ -3,14 +3,16 @@ import {
   asPackId,
   asPackVersionId,
   asHumanReviewId,
-  transitionForgeRun,
   emptyBudgetUsage,
   type ForgeRunId,
+  type ForgeRunTransitionAction,
+  type ForgeRunTransitionRecord,
 } from '@domain-forge/core';
-import type { ForgeRun } from '@domain-forge/contracts';
+import type { ForgeRun, StageExecutionOutcome } from '@domain-forge/contracts';
 import type { ForgeRepositories } from '@domain-forge/persistence';
 import type { RunBudget } from '@domain-forge/core';
 import type { HumanGateRecord } from '@domain-forge/core';
+import { mapStageOutcomeToRunAction } from './stage-outcome-mapper.js';
 
 export class ForgeOrchestrator {
   constructor(private readonly repos: ForgeRepositories) {}
@@ -33,63 +35,63 @@ export class ForgeOrchestrator {
       createdAt: now,
       updatedAt: now,
     };
-    await this.repos.forgeRuns.save(run);
+    await this.repos.forgeRuns.insert(run);
     return run;
+  }
+
+  private async applyRunTransition(
+    run: ForgeRun,
+    action: ForgeRunTransitionAction,
+    context?: { actorRef?: string; reasonRef?: string },
+  ): Promise<{ run: ForgeRun; record: ForgeRunTransitionRecord }> {
+    const result = await this.repos.forgeRunLifecycle.applyTransition({
+      forgeRunId: run.id,
+      action,
+      expectedFromState: run.state,
+      ...(context !== undefined ? { context } : {}),
+    });
+    return result;
   }
 
   async startRun(runId: ForgeRunId): Promise<ForgeRun> {
     const run = await this.repos.forgeRuns.get(runId);
     if (!run) throw new Error(`Run not found: ${runId}`);
-    const newState = transitionForgeRun(run.state, 'RUNNING');
-    const updated = { ...run, state: newState, updatedAt: new Date().toISOString() };
-    await this.repos.forgeRuns.save(updated);
+    const { run: updated } = await this.applyRunTransition(run, 'START');
     return updated;
   }
 
   async completeRun(runId: ForgeRunId): Promise<ForgeRun> {
     const run = await this.repos.forgeRuns.get(runId);
     if (!run) throw new Error(`Run not found: ${runId}`);
-    const newState = transitionForgeRun(run.state, 'COMPLETED');
-    const now = new Date().toISOString();
-    const updated = { ...run, state: newState, updatedAt: now, completedAt: now };
-    await this.repos.forgeRuns.save(updated);
+    const { run: updated } = await this.applyRunTransition(run, 'COMPLETE');
     return updated;
   }
 
   async failRun(runId: ForgeRunId): Promise<ForgeRun> {
     const run = await this.repos.forgeRuns.get(runId);
     if (!run) throw new Error(`Run not found: ${runId}`);
-    const newState = transitionForgeRun(run.state, 'FAILED');
-    const now = new Date().toISOString();
-    const updated = { ...run, state: newState, updatedAt: now, completedAt: now };
-    await this.repos.forgeRuns.save(updated);
+    const { run: updated } = await this.applyRunTransition(run, 'FAIL');
     return updated;
   }
 
   async blockRun(runId: ForgeRunId): Promise<ForgeRun> {
     const run = await this.repos.forgeRuns.get(runId);
     if (!run) throw new Error(`Run not found: ${runId}`);
-    const newState = transitionForgeRun(run.state, 'BLOCKED');
-    const updated = { ...run, state: newState, updatedAt: new Date().toISOString() };
-    await this.repos.forgeRuns.save(updated);
+    const { run: updated } = await this.applyRunTransition(run, 'BLOCK');
     return updated;
   }
 
   async waitForHuman(runId: ForgeRunId): Promise<ForgeRun> {
     const run = await this.repos.forgeRuns.get(runId);
     if (!run) throw new Error(`Run not found: ${runId}`);
-    const newState = transitionForgeRun(run.state, 'WAITING_FOR_HUMAN');
-    const updated = { ...run, state: newState, updatedAt: new Date().toISOString() };
-    await this.repos.forgeRuns.save(updated);
+    const { run: updated } = await this.applyRunTransition(run, 'AWAIT_HUMAN');
     return updated;
   }
 
   async resumeRun(runId: ForgeRunId): Promise<ForgeRun> {
     const run = await this.repos.forgeRuns.get(runId);
     if (!run) throw new Error(`Run not found: ${runId}`);
-    const newState = transitionForgeRun(run.state, 'RUNNING');
-    const updated = { ...run, state: newState, updatedAt: new Date().toISOString() };
-    await this.repos.forgeRuns.save(updated);
+    const { run: updated } = await this.applyRunTransition(run, 'RESUME');
     return updated;
   }
 
@@ -113,5 +115,27 @@ export class ForgeOrchestrator {
 
   async getRun(runId: ForgeRunId): Promise<ForgeRun | undefined> {
     return this.repos.forgeRuns.get(runId);
+  }
+
+  /**
+   * Interprets a stage outcome and applies a ForgeRun lifecycle transition when appropriate.
+   * Stages return typed outcomes; lifecycle mutation stays in the orchestrator.
+   */
+  async applyStageOutcome(
+    runId: ForgeRunId,
+    outcome: StageExecutionOutcome,
+  ): Promise<{ run: ForgeRun; outcome: StageExecutionOutcome }> {
+    const run = await this.repos.forgeRuns.get(runId);
+    if (!run) {
+      throw new Error(`Run not found: ${runId}`);
+    }
+
+    const action = mapStageOutcomeToRunAction(outcome);
+    if (action === null || run.state !== 'RUNNING') {
+      return { run, outcome };
+    }
+
+    const { run: updated } = await this.applyRunTransition(run, action);
+    return { run: updated, outcome };
   }
 }

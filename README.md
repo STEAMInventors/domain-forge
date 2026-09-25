@@ -10,11 +10,24 @@ MODEL PROPOSES. PACK DEFINES. CODE VALIDATES. HIVE CORE EXECUTES. PROFESSIONAL C
 
 ## Quick Start
 
+Requires **Node.js >= 22** and **pnpm 9.15** via Corepack:
+
 ```bash
-pnpm install
-pnpm build
-pnpm test
+corepack enable
+corepack pnpm install
+corepack pnpm run build
+corepack pnpm run test
 ```
+
+Clean build artifacts (`dist/`, `*.tsbuildinfo` in workspace packages only):
+
+```bash
+corepack pnpm run clean
+```
+
+On Windows, the repo `.npmrc` uses `node-linker=hoisted` to avoid path-length issues with nested `node_modules`. See `docs/BOOTSTRAP_BASELINE.md`.
+
+Bootstrap completion record: `docs/BOOTSTRAP_BASELINE.md`.
 
 ## Documentation
 
