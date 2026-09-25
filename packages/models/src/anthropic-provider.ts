@@ -5,6 +5,7 @@ import {
   asRecord,
   assertExplicitModelPolicy,
   assertNoProviderNativeTools,
+  assertReturnedModelMatchesPolicy,
   isRetryableProviderStatus,
   optionalString,
   parseJsonIfPossible,
@@ -161,6 +162,8 @@ export class AnthropicModelProvider implements ModelProvider {
         modelIdentifier: policy.modelIdentifier,
       });
     }
+
+    assertReturnedModelMatchesPolicy(optionalString(root['model']), policy, this.providerName);
 
     const rawText = extractOutputText(root);
     const tokenUsage = extractUsage(root);
