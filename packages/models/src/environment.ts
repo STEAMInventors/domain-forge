@@ -117,6 +117,7 @@ export function createProductionModelProviderFromEnv(env: Env = process.env): Mo
   }
 
   const sharedTimeoutMs = optionalPositiveInteger(env, 'FORGE_MODEL_TIMEOUT_MS');
+  const anthropicWorkspaceId = optionalEnv(env, 'ANTHROPIC_WORKSPACE_ID');
 
   if (configuredProviderNames.has('openai')) {
     providers.push(
@@ -131,8 +132,8 @@ export function createProductionModelProviderFromEnv(env: Env = process.env): Mo
     providers.push(
       new AnthropicModelProvider({
         apiKey: requiredEnv(env, 'ANTHROPIC_API_KEY'),
-        ...(optionalEnv(env, 'ANTHROPIC_WORKSPACE_ID') !== undefined
-          ? { workspaceId: optionalEnv(env, 'ANTHROPIC_WORKSPACE_ID') }
+        ...(anthropicWorkspaceId !== undefined
+          ? { workspaceId: anthropicWorkspaceId }
           : {}),
         ...(sharedTimeoutMs !== undefined ? { timeoutMs: sharedTimeoutMs } : {}),
       }),
