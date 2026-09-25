@@ -15,6 +15,7 @@ describe('AnthropicModelProvider', () => {
       new Response(
         JSON.stringify({
           id: 'msg_test',
+          model: 'claude-opus-5',
           content: [{ type: 'text', text: '{"ok":true}' }],
           usage: {
             input_tokens: 10,
