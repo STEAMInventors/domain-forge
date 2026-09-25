@@ -5,6 +5,7 @@ import {
   asRecord,
   assertExplicitModelPolicy,
   assertNoProviderNativeTools,
+  assertReturnedModelMatchesPolicy,
   isRetryableProviderStatus,
   optionalString,
   parseJsonIfPossible,
@@ -160,6 +161,8 @@ export class OpenAIModelProvider implements ModelProvider {
         modelIdentifier: policy.modelIdentifier,
       });
     }
+
+    assertReturnedModelMatchesPolicy(optionalString(root['model']), policy, this.providerName);
 
     const rawText = extractOutputText(root);
     const tokenUsage = extractUsage(root);
