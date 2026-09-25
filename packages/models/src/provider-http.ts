@@ -87,7 +87,7 @@ export async function postProviderJson(input: {
   try {
     const response = await input.fetchImpl(input.url, {
       method: 'POST',
-      headers: input.headers,
+      headers: { ...input.headers },
       body: JSON.stringify(input.body),
       signal: controller.signal,
     });
