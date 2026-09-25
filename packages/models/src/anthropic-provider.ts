@@ -86,7 +86,7 @@ export class AnthropicModelProvider implements ModelProvider {
 
   private readonly apiKey: string;
   private readonly apiVersion: string;
-  private readonly workspaceId?: string;
+  private readonly workspaceId: string | undefined;
   private readonly timeoutMs: number;
   private readonly defaultMaxTokens: number;
   private readonly baseUrl: string;
