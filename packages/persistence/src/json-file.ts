@@ -170,6 +170,9 @@ export class JsonFilePersistence {
     this.wrapQualifications();
     this.wrapCertifications();
     this.wrapSourceSnapshots();
+    this.wrapStageExecutions();
+    this.wrapArtifacts();
+    this.wrapHumanReviews();
     this.wrapTransitions();
     this.wrapCertificationTransactions();
   }
@@ -291,6 +294,69 @@ export class JsonFilePersistence {
         await records.save(record);
         await writeJson(
           join(this.collectionPath('source_records'), `${record.identity.sourceId}.json`),
+          record,
+        );
+      },
+    };
+  }
+
+  private wrapStageExecutions(): void {
+    const base = this.repos.stageExecutions;
+    this.repos.stageExecutions = {
+      ...base,
+      append: async (execution) => {
+        await base.append(execution);
+        await writeJson(
+          join(this.collectionPath('stage_executions'), `${execution.id}.json`),
+          execution,
+        );
+      },
+      save: async (execution) => {
+        await base.save(execution);
+        await writeJson(
+          join(this.collectionPath('stage_executions'), `${execution.id}.json`),
+          execution,
+        );
+      },
+    };
+  }
+
+  private wrapArtifacts(): void {
+    const base = this.repos.artifacts;
+    this.repos.artifacts = {
+      ...base,
+      append: async (artifact) => {
+        await base.append(artifact);
+        await writeJson(
+          join(this.collectionPath('artifacts'), `${artifact.id}.json`),
+          artifact,
+        );
+      },
+      save: async (artifact) => {
+        await base.save(artifact);
+        await writeJson(
+          join(this.collectionPath('artifacts'), `${artifact.id}.json`),
+          artifact,
+        );
+      },
+    };
+  }
+
+  private wrapHumanReviews(): void {
+    const base = this.repos.humanReviews;
+    this.repos.humanReviews = {
+      ...base,
+      append: async (record) => {
+        await base.append(record);
+        await writeJson(
+          join(this.collectionPath('human_reviews'), `${record.id}.json`),
+          record,
+        );
+      },
+      save: async (record) => {
+        await base.save(record);
+        await writeJson(
+          join(this.collectionPath('human_reviews'), `${record.id}.json`),
           record,
         );
       },
