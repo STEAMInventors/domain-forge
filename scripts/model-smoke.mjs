@@ -1,14 +1,17 @@
-const domain = process.argv.slice(2).join(' ').trim();
+const domain = process.argv[2]?.trim();
+const policyAlias = process.argv[3]?.trim() || 'research.high_accuracy';
 
 if (!domain) {
-  console.error('Usage: node --env-file=.env scripts/model-smoke.mjs <domain>');
+  console.error(
+    'Usage: node --env-file=.env scripts/model-smoke.mjs <domain> [policyAlias]',
+  );
   process.exit(2);
 }
 
 const { createProductionModelRuntimeFromEnv } = await import('../packages/models/dist/index.js');
 
 const { modelProvider, policyRegistry } = createProductionModelRuntimeFromEnv(process.env);
-const policy = policyRegistry.resolve('research.high_accuracy');
+const policy = policyRegistry.resolve(policyAlias);
 
 console.log('DOMAIN FORGE MODEL SMOKE');
 console.log('');
