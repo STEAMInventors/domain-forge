@@ -60,7 +60,7 @@ function extractUsage(body: Readonly<Record<string, unknown>>): ModelResponse['t
 function providerErrorDetails(
   body: unknown,
   response: Response,
-): Readonly<Record<string, unknown>> {
+): Record<string, unknown> {
   const root = asRecord(body);
   const error = root ? asRecord(root['error']) : undefined;
   const bodyRequestId = optionalString(root?.['request_id']);
