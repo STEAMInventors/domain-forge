@@ -1,5 +1,5 @@
 import type { ModelPolicy, ModelRequest } from '@domain-forge/contracts';
-import { ModelInvocationError } from '@domain-forge/core';
+import { ModelInvocationError, ModelOutputError } from '@domain-forge/core';
 
 export type ProviderFetch = typeof fetch;
 
@@ -148,4 +148,21 @@ export function asFiniteNonNegativeNumber(value: unknown): number | undefined {
 
 export function optionalString(value: unknown): string | undefined {
   return typeof value === 'string' && value.length > 0 ? value : undefined;
+}
+
+export function assertReturnedModelMatchesPolicy(
+  returnedModel: string | undefined,
+  policy: ModelPolicy,
+  providerName: string,
+): void {
+  if (returnedModel !== undefined && returnedModel !== policy.modelIdentifier) {
+    throw new ModelOutputError(
+      `${providerName} returned a different model identifier than the configured policy`,
+      {
+        provider: providerName,
+        requestedModelIdentifier: policy.modelIdentifier,
+        returnedModelIdentifier: returnedModel,
+      },
+    );
+  }
 }
