@@ -30,6 +30,7 @@ describe('AnthropicModelProvider', () => {
 
     const provider = new AnthropicModelProvider({
       apiKey: 'test-key',
+      workspaceId: 'ws_test',
       fetchImpl: fetchImpl as typeof fetch,
     });
     const response = await provider.invoke({ prompt: 'hello', jsonSchema: { type: 'object' } }, policy);
@@ -41,6 +42,7 @@ describe('AnthropicModelProvider', () => {
     const body = JSON.parse(String(request?.body)) as Record<string, unknown>;
     expect(body['model']).toBe('claude-opus-5');
     expect(body['tools']).toBeUndefined();
+    expect(new Headers(request?.headers).get('anthropic-workspace-id')).toBe('ws_test');
   });
 
   it('rejects provider-native tools', async () => {
