@@ -15,6 +15,7 @@ describe('OpenAIModelProvider', () => {
       new Response(
         JSON.stringify({
           id: 'resp_test',
+          model: 'gpt-5.6-sol',
           output: [
             {
               type: 'message',
