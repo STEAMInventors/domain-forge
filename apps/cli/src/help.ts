@@ -6,6 +6,7 @@ Global flags:
   --human    Emit concise human-readable output (default)
 
 Commands:
+  forge <domainName>                              Create a real ForgeRun and immutable domain intent
   create-run <domainId> <packId> <packVersion>   Create a new ForgeRun and DRAFT pack version
   inspect-run <runId>                           Inspect run state, transitions, and reviews
   execute-stage <runId>                         Execute the bootstrap example stage
